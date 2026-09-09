@@ -1,0 +1,52 @@
+# Derived from the blueprint. The blueprint itself is never modified.
+# The SHAPE of this file is fixed and blueprint-agnostic.
+# The CONTENT is the blueprint's own detail, in the blueprint's own terms —
+# you are indexing it, not summarizing it.
+
+blueprint:
+  source: <path or URL — read-only>
+  read_at: <YYYY-MM-DD>
+  version_ref: <commit, date, or hash of exactly what was read>
+  self_described_as: <one line, in the blueprint's own words>
+  audience: <individual | team | org | derived-per-element>
+
+# The blueprint's own load-bearing rules. These become spec-validation
+# assertions, so state them precisely enough to check.
+invariants:
+  - id: INV-1
+    rule: <verbatim or close paraphrase>
+    source_ref: <file#section>
+
+# The blueprint's own anti-pattern list: "what this is not", "out of scope",
+# "known limits", "explicit non-goals". The strongest guard against overreach.
+out_of_scope:
+  - <what the blueprint explicitly says does not belong>
+
+elements:
+  - id: <stable slug>
+    what: <the artifact, check, step, role, or cadence proposed>
+    detail: >
+      <the blueprint's actual specification: required structure, fields,
+       thresholds, format, ordering. Enough to generate from. Not a summary.>
+    rationale: <why the blueprint says this exists — you will need this at elicitation>
+    authored_by: <user | team | agent | script>
+    cadence: <how often the blueprint expects it to change>
+    nature: <asserted | enforced>
+    enforcement_mechanism: <named mechanism, or null. Re-tested against this environment in the survey>
+    location_hint: <where the blueprint suggests it lives, if it says>
+    slots:
+      # The ONLY legitimate elicitation targets, alongside `open` below.
+      - id: <slug>
+        asks: <what the adopter must supply>
+        blocking: <true | false>
+        default: <a defensible default from the blueprint or the situation, or null>
+    depends_on: [<element ids>]
+    minimum_viable: <true | false>   # part of the blueprint's own starting subset
+    source_ref: <file#section>
+
+# The blueprint's own sequencing, if it states one. Follow it.
+adoption_order: [<element ids>]
+
+# What the blueprint does not decide, and the situation must.
+open:
+  - <question>

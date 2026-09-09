@@ -1,0 +1,71 @@
+{
+  "practice_id": "<slug>",
+  "phase": "draft | apply | live | retired",
+  "blueprint": {
+    "source": "<path or URL>",
+    "version_ref": "<commit, date, or hash of what was read>",
+    "read_at": "<YYYY-MM-DD>"
+  },
+  "profile": {
+    "source": "<path to the profile collection>",
+    "version_ref": "<commit, date, or hash of what was read>",
+    "read_at": "<YYYY-MM-DD>"
+  },
+  "spec_sha256": "<hash of the approved spec>",
+  "approved_by": "<identity>",
+  "approved_at": "<ISO 8601>",
+  "owns_paths": [
+    "<path or glob this practice exclusively owns — released only on retirement>"
+  ],
+  "artifacts": [
+    {
+      "path": "<target path>",
+      "sha256": "<hash at materialization — drift is detected against this>",
+      "harness_slot": "<slot id from the profile's harness binding>",
+      "slot_scope": "personal | shared",
+      "owner": "<named person>",
+      "authored_by": "user | team | agent | script",
+      "nature": "asserted | enforced",
+      "enforcement_mechanism": "<what fails closed, or null>",
+      "enforcement_verified": "<how it was tested by violation, or null>",
+      "cadence": "<how often it changes>",
+      "review_by": "<YYYY-MM-DD, or 'never' with a reason in the adoption record>",
+      "traces": {
+        "element": "<blueprint element id>",
+        "facts": ["<profile fact id>", "<profile fact id>"]
+      },
+      "weakest_fact": "<confidence + freshness of the least certain traced fact>",
+      "prior_state": "<where the overwritten content was preserved, or null>"
+    }
+  ],
+  "deferred": [
+    {
+      "element_id": "<id>",
+      "reason": "<why not now>",
+      "trigger": "<the condition that brings it back into the loop>"
+    }
+  ],
+  "pointed_at": [
+    {
+      "element_id": "<id>",
+      "covered_by": "<existing path or mechanism>",
+      "note": "<satisfied elsewhere — nothing was generated for this>"
+    }
+  ],
+  "demotions": [
+    {
+      "element_id": "<id>",
+      "blueprint_mechanism": "<what the blueprint expected>",
+      "why_unavailable": "<no mechanism | exists but not enabled | outside our authority>",
+      "now": "asserted | deferred",
+      "profile_fact": "<the capability fact and gap entry written back>"
+    }
+  ],
+  "profile_changes": [
+    {
+      "fact_id": "<id>",
+      "move": "add | confirm | supersede | retire",
+      "covers": "<one line>"
+    }
+  ]
+}

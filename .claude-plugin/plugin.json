@@ -1,0 +1,22 @@
+{
+  "name": "magentix",
+  "displayName": "Magentix",
+  "description": "Adds the Magentix adoption engine to Claude Code: skills that survey a project or elicit a user profile, bind an agent harness, author a spec tree from a best-practice blueprint, validate and adopt a practice, and check it for drift afterward — plus two read-only subagents (profile-surveyor, spec-validator) that gather evidence and validate specs without editing anything. Everything here is a compiler from blueprints and profiles to real files at real paths; it ships no active hooks.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Skyler Bubier",
+    "url": "https://github.com/skylerbubier"
+  },
+  "homepage": "https://github.com/skylerbubier/magentix",
+  "repository": "https://github.com/skylerbubier/magentix",
+  "license": "MIT",
+  "keywords": [
+    "adoption",
+    "blueprint",
+    "profile",
+    "agent-context",
+    "spec-driven",
+    "subagents",
+    "skills"
+  ]
+}

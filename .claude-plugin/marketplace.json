@@ -1,0 +1,33 @@
+{
+  "name": "magentix-marketplace",
+  "owner": {
+    "name": "Skyler Bubier",
+    "url": "https://github.com/skylerbubier"
+  },
+  "description": "Self-hosting one-plugin marketplace for Magentix, an adoption engine that compiles best-practice blueprints and situated profiles into working agent artifacts.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "magentix",
+      "source": {
+        "source": "github",
+        "repo": "skylerbubier/magentix"
+      },
+      "displayName": "Magentix",
+      "description": "Adopts best-practice blueprints against a person's or a project's actual situation and compiles them into working artifacts, with skills for the full adoption loop and subagents for read-only project surveying and spec validation.",
+      "category": "workflow",
+      "keywords": [
+        "adoption",
+        "blueprint",
+        "profile",
+        "agent-context",
+        "spec-driven",
+        "subagents",
+        "skills"
+      ],
+      "license": "MIT",
+      "homepage": "https://github.com/skylerbubier/magentix",
+      "repository": "https://github.com/skylerbubier/magentix"
+    }
+  ]
+}

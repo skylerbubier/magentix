@@ -1,0 +1,41 @@
+# {project-id}/practices.yaml
+# Which blueprints this project has adopted, and what each one owns.
+# A project commonly runs several practices at once; this registry is what
+# keeps them from overwriting each other.
+
+project: <project-id>
+
+practices:
+  - id: <practice-id>
+    blueprint: <source>
+    blueprint_version: <exactly what was read>
+    adopted: <YYYY-MM-DD>
+    manifest: <path to that practice's manifest>
+
+    # EXCLUSIVE. A path belongs to exactly one live practice. Two practices
+    # writing one file will overwrite each other, and the second one's
+    # regeneration silently destroys the first one's output.
+    owns_paths:
+      - <path or glob>
+
+    # Practices this one assumes already exists. Rebuilding a dependency
+    # after its dependent leaves the dependent pointing at nothing.
+    depends_on: [<practice-id>]
+
+    status: <live | draft | retired>
+    last_reviewed: <YYYY-MM-DD>
+    # Recording retirement is what RELEASES the owned paths. Until then they
+    # stay claimed, and the next adoption collides with something nobody
+    # maintains.
+    retired_on: <YYYY-MM-DD, when status is retired>
+
+# Adoption order, where practices depend on each other.
+order: [<practice-id>, <practice-id>]
+
+# Contended paths awaiting a decision. A collision is resolved by a person
+# choosing which practice owns the path — never by merging, which produces a
+# file neither practice can regenerate.
+unresolved_collisions:
+  - path: <path>
+    claimed_by: [<practice-id>, <practice-id>]
+    note: <what the decision is between>

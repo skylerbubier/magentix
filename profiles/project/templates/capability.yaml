@@ -1,0 +1,42 @@
+# facts/capability/PF-NNNN.yaml
+# The highest-value facts in the collection and the most often overstated.
+# Be pessimistic, and verify by VIOLATING the thing where you can.
+---
+kind: project-fact
+project: <project id>
+owner: <one named person>
+last_verified: <YYYY-MM-DD>   # one-month interval — the shortest here, deliberately
+---
+id: PF-<NNNN>
+category: capability
+
+# State what CANNOT happen. Then answer: what happens when somebody violates
+# it? "Merge is blocked" is a capability. "Someone would notice in review"
+# is a convention — record that as a pointer fact instead.
+statement: >
+  <what it prevents>
+
+detail:
+  mechanism: "<the concrete thing: a named check, a protection rule, a hook>"
+  layer: <local | pipeline | platform | process>
+  # true only if it says no on its own, without anyone choosing to comply
+  fails_closed: <true | false>
+  # How it can be circumvented, and by whom. "none" is a strong claim —
+  # an unrecorded bypass is the most misleading thing this file can contain.
+  bypass: <how, and by whom | none>
+  scope: <paths, branches, environments it applies to>
+  covers: <the class of violation it catches>
+  # As important as `covers`. A rule on tool-mediated writes that misses
+  # shell redirects covers the accident case and not the deliberate one.
+  does_not_cover: <the gap, stated explicitly>
+
+verification:
+  method: observed
+  # Reading configuration confirms it EXISTS. Attempting the violation and
+  # being denied confirms it WORKS. Only the second earns fails_closed: true.
+  how: <the violation attempted>
+  last_result: <what happened when violated>
+
+authority: <who can disable or change it>
+supersedes: <PF-NNNN, or null>
+status: active

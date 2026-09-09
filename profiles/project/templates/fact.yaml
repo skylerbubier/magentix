@@ -1,0 +1,41 @@
+# One fact, one file. Filename is the id: facts/<category>/PF-NNNN.yaml
+---
+kind: project-fact
+project: <project id>
+owner: <one named person — not "the team". A fact with no owner has nobody to ask>
+last_verified: <YYYY-MM-DD>
+---
+id: PF-<NNNN>
+
+# identity | stack | interface | capability | authority
+# convention | constraint | cadence | harness
+category: <category>
+
+# The durable shape of the fact, stated concretely enough to be checked.
+statement: >
+  <fact>
+
+# The fact's current value: names, commands, numbers, paths. Split from
+# `statement` so a value change is an edit here plus a re-verification,
+# rather than a supersession every time a number moves.
+detail:
+  <key>: <value>
+
+rationale: <why it is this way, where that is not obvious and matters>
+
+verification:
+  # observed  - read from the project. `how` is REQUIRED
+  # pointer   - authoritative elsewhere; this record holds no copy
+  # asserted  - somebody said so and it cannot be read
+  # untestable- no way to establish it. Justify or drop the fact
+  method: <method>
+  how: <the command, path, or artifact that establishes it>
+  last_result: <what it showed, one line>
+
+# Who can CHANGE this fact, where that differs from who keeps it current.
+# Recording where authority sits is a note. It never grants anything.
+authority: <who>
+
+supersedes: <PF-NNNN, or null>
+status: active
+# retired_reason: <required when status is retired>

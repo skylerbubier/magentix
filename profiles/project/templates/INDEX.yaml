@@ -1,0 +1,56 @@
+# GENERATED across all project profiles. Never hand-edited.
+
+generated_at: <YYYY-MM-DD>
+
+projects:
+  - id: <project-id>
+    name: <human name>
+    repositories: [<repo>, …]
+    owner: <one named person>
+    risk_tier: <as recorded in cadence facts>
+    fact_count: { active: <n>, superseded: <n>, retired: <n> }
+    practices: [<practice-id>, …]
+    # The single most useful number here: a project whose least-recently-
+    # verified fact is months old is a project whose generated artifacts are
+    # being trusted on the strength of a months-old survey.
+    oldest_verification: <YYYY-MM-DD>
+    status: <active | dormant | retired>
+
+stale_projects:
+  - <project-id>
+
+# The same path claimed by more than one live practice. Nothing else detects
+# this, and it is what makes several practices per project safe.
+path_collisions:
+  - path: <path>
+    claimed_by: [<practice-id>, <practice-id>]
+
+# Facts whose verification interval has lapsed, by category.
+stale_facts:
+  - id: <PF-NNNN>
+    project: <project-id>
+    category: <category>
+    last_verified: <YYYY-MM-DD>
+    how: <the command or path to re-run — re-verification is cheap when this is recorded>
+
+# Verification intervals by category.
+intervals:
+  capability: 1 month     # load-bearing: every honesty claim rests on these
+  interface: 1 month
+  stack: 3 months
+  authority: 3 months
+  identity: 6 months
+  cadence: 6 months
+  convention: 6 months
+  constraint: 12 months
+  harness: on any tooling change (event-based)
+
+# The capability backlog, accumulated from every practice that had to demote
+# something from enforced to asserted. Worth more than the inventory itself:
+# the inventory describes the present, this describes what to build.
+gaps:
+  - want: <the control a blueprint asked for>
+    projects: [<project-id>, …]
+    why_unavailable: <no mechanism | exists but not enabled | outside our authority>
+    nearest_available: <the weaker thing that does exist, or none>
+    authority: <who could change this>

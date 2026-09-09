@@ -1,0 +1,71 @@
+# {project-id}/harness/bindings.yaml
+# The ONLY agent-specific file in this collection. No fact names an agent
+# tool, a config path, or a product feature — that all resolves here.
+
+kind: project-harness-binding
+project: <project id>
+owner: <one named person>
+last_verified: <YYYY-MM-DD>
+
+harnesses:
+  - id: <slug>
+    tool: <what it is>
+    # required  - everyone uses it; artifacts can be relied upon
+    # supported - some do; generate, don't assume
+    # tolerated - somebody does; do not assume artifacts are present
+    adoption: <required | supported | tolerated>
+
+    slots:
+      project_context:
+        path: <path>
+        scope: shared
+        format: <markdown | yaml | product-specific>
+        # Which practice owns this path. Leaving it unclaimed on a slot two
+        # practices write is exactly the collision the index reports.
+        owned_by_practice: <practice-id | unclaimed>
+
+      on_demand:
+        path: <path or directory>
+        format: <…>
+        owned_by_practice: <practice-id | unclaimed>
+
+      automation:
+        path: <path or directory>
+        kind: <hook | check | task>
+        fails_closed: <true | false>
+        owned_by_practice: <practice-id | unclaimed>
+
+      # The ONLY slot where per-person artifacts may be written, and it is
+      # uncommitted by construction. No such slot means personal artifacts
+      # have no home in this project — which is correct, and is not solved
+      # by writing them into a shared file.
+      personal_overlay:
+        path: <path>
+        scope: personal
+        committed: false
+
+      # Always writable, never project content, never reviewed, never part
+      # of any declared write-set. A practice whose path rules can deny the
+      # agent's note-taking produces an agent that cannot hand off work.
+      agent_state:
+        path: <path>
+
+    capabilities:
+      reads_project_context: <true | false>
+      supports_on_demand_reference: <true | false>
+      supports_automation: <true | false>
+      # Tool-level automation is usually deny-only at best and routinely
+      # bypassable — a shell redirect is not a tool call. Where something
+      # must actually hold, route it through a pipeline or platform
+      # capability instead and let the inventory say which exist.
+      automation_fails_closed: <true | false>
+      automation_bypassable: <how | none>
+
+    precedence: <how this tool resolves multiple context sources, in its own terms>
+
+retired:
+  - id: <slug>
+    retired_on: <YYYY-MM-DD>
+    # A retired tool's context file left in the repository keeps being
+    # loaded by anyone still running that tool, and it will be stale.
+    artifacts_removed: <true | false>

@@ -1,0 +1,43 @@
+# GENERATED from the criteria files. Never hand-edited.
+# A router, not a copy: carries no `statement` and no `rationale`, so a
+# generator can select a slice and load only those files.
+
+generated_at: <YYYY-MM-DD>
+
+count:
+  active: <n>
+  superseded: <n>
+  retired: <n>
+
+criteria:
+  - id: UC-<NNNN>
+    category: <category>
+    rank: <n, priority only>
+    scope: <scope>
+    weight: <weight>
+    stability: <stability>
+    source: <source>
+    last_confirmed: <YYYY-MM-DD>
+    status: active
+    path: criteria/<category>/UC-<NNNN>.yaml
+
+# last_confirmed older than the category's interval. Still used — staleness
+# changes how loudly an agent flags that it is acting on an old fact, not
+# whether it acts.
+stale:
+  - <UC-NNNN>
+
+# Same scope, contradictory statements. Resolved by the person, never averaged.
+conflicts:
+  - [<UC-NNNN>, <UC-NNNN>]
+
+# Confirmation intervals by category, for staleness computation.
+intervals:
+  identity: 12 months
+  priority: 6 months
+  authority: 6 months
+  interaction: 3 months while calibrating, 12 once stable
+  context: 12 months
+  non-goal: 12 months
+  correction: 6 months
+  harness: on any tooling change (event-based, not time-based)

@@ -1,0 +1,51 @@
+# harness/bindings.yaml
+# The ONLY agent-specific file in this collection. No criterion may name a
+# tool, a path, a config key, or a product feature — that all resolves here.
+# Switching tools is an edit to this file plus a regeneration, and touches
+# no criterion.
+
+kind: user-harness-binding
+owner: <the person>
+last_confirmed: <YYYY-MM-DD>
+
+harnesses:
+  - id: <slug>
+    tool: <what it is>
+    role: <primary | secondary | occasional>
+
+    slots:
+      always_loaded:
+        path: <path>
+        # personal = safe for criteria. shared = other people inherit it, so
+        # NO criterion is ever materialized here. If a tool's only slot is
+        # shared, this tool has no personal slot — record that, don't use it.
+        scope: <personal | shared>
+        format: <markdown | yaml | json | product-specific>
+
+      on_demand:
+        path: <path>
+        format: <…>
+
+      presentation:
+        path: <path>
+        format: <…>
+
+      # Must be writable at any point in a task, including where other write
+      # restrictions apply. A profile that can be read but not corrected
+      # mid-task decays.
+      agent_state:
+        path: <path>
+
+    capabilities:
+      reads_personal_context: <true | false>
+      supports_on_demand_reference: <true | false>
+      supports_presentation_config: <true | false>
+      # Almost always false at personal scope. If true, name the mechanism.
+      can_enforce: <false>
+
+    precedence: <how this tool resolves multiple context sources, in its own terms>
+
+retired:
+  - id: <slug>
+    retired_on: <YYYY-MM-DD>
+    artifacts_removed: <true | false>

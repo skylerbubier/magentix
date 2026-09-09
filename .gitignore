@@ -1,0 +1,36 @@
+# OS cruft
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editor / IDE directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (present if any tooling in this repo grows a package.json)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+logs/
+
+# Local, uncommitted agent files a *user* of this repo generates.
+# This repo ships templates and blueprints, not personal state: a reader's
+# own personal settings overlay, their own adoption-loop run workspace, and
+# their own collected profile facts are theirs, are often per-machine, and
+# were never meant to be committed back into this repository.
+.claude/settings.local.json
+adoption/**/runs/
+profiles/**/collected/
+profiles/**/local/

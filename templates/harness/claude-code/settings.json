@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(npm run test:*)",
+      "Read(./src/**)"
+    ],
+    "ask": [
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Bash(curl:*)"
+    ],
+    "additionalDirectories": [
+      "../example-shared-lib"
+    ]
+  },
+  "env": {
+    "EXAMPLE_API_BASE_URL": "https://example.invalid/api"
+  },
+  "outputStyle": "Explanatory"
+}

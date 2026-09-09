@@ -1,0 +1,86 @@
+# Derived from the profile collection. The collection keeps its own format;
+# this is the loop's normalized view of it.
+#
+# The SHAPE below is fixed and format-agnostic. The CONTENT is the profile's
+# own detail, in the profile's own terms.
+#
+# The profile is read freely and written ONLY through its own moves —
+# add / confirm / supersede / retire. Never rewritten, never reorganized.
+
+profile:
+  source: <path>
+  read_at: <YYYY-MM-DD>
+  version_ref: <commit, date, or hash of what was read>
+  describes: <a person | a project | something else, in the profile's own words>
+  audience: <individual | shared>
+  owner: <who this profile belongs to>
+  index: <path to the profile's own index, if it has one>
+
+facts:
+  - id: <the profile's own id>
+    category: <the profile's own category>
+    statement: <the fact>
+    detail: <values, names, numbers — whatever the profile carries>
+    rationale: <why, where the profile records it>
+    scope: <where it applies, in the profile's own terms>
+    weight: <how strongly held, if the format expresses it>
+
+    # NORMALIZED. Every format expresses these differently and the loop
+    # depends on both.
+    #   strong   - observed, measured, verified by test, or from a correction
+    #              the person actually made
+    #   moderate - stated by its owner, or read from config without testing
+    #   weak     - inferred or assumed. Say so when acting on it
+    confidence: <strong | moderate | weak>
+    #   fresh      - within its own interval
+    #   stale      - lapsed. STILL USED — the alternative is discarding the
+    #                best information available in favour of nothing
+    #   unverified - never confirmed. Confirm before generating against it
+    freshness: <fresh | stale | unverified>
+
+    # Who can CHANGE this fact. Where authority sits outside the adopter,
+    # the adopter cannot approve a spec entry that depends on it.
+    authority: <who>
+    verified_this_run: <true | false — set when the loop re-checked it>
+    source_ref: <file>
+
+# Only where the profile records them. Read PESSIMISTICALLY: an unverified
+# capability is not a capability, and treating one as available is how a
+# practice comes to believe it holds a control it does not hold.
+capabilities:
+  - mechanism: <the concrete thing>
+    layer: <local | pipeline | platform | process | unknown>
+    fails_closed: <true | false>
+    bypass: <how, or none>
+    covers: <…>
+    does_not_cover: <…>
+    verified: <YYYY-MM-DD, or null>
+
+# Controls a blueprint wanted and this environment cannot provide.
+# Every demotion made during verification appends here.
+gaps:
+  - want: <…>
+    why_unavailable: <no mechanism | exists but not enabled | outside our authority>
+    nearest_available: <the weaker thing that does exist, or none>
+
+# The agent-specific seam. Nothing else in this reading names a tool.
+harness:
+  slots:
+    - id: <slot name in the profile's terms>
+      path: <path>
+      # shared slots NEVER receive an individually-authored entry
+      scope: <personal | shared>
+      format: <…>
+      writable: <true | false>
+      fails_closed: <true | false>
+      owned_by_practice: <practice-id | unclaimed>
+  agent_state_path: <path — must be writable at all times>
+
+# Paths already owned by another live practice. Must stay disjoint from
+# anything this spec declares.
+claimed_paths:
+  - path: <path>
+    by_practice: <practice-id>
+
+open: [<what the profile does not say and must be elicited>]
+conflicts: [<contradictions the profile itself flags>]

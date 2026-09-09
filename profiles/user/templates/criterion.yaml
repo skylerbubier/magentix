@@ -1,0 +1,51 @@
+# One fact, one file. Filename is the id: criteria/<category>/UC-NNNN.yaml
+---
+kind: user-criterion
+owner: <the one person this describes>
+last_confirmed: <YYYY-MM-DD>
+---
+id: UC-<NNNN>
+
+# identity | priority | authority | interaction | context | non-goal | correction | harness
+category: <category>
+
+# priority criteria only — the whole value is breaking ties without asking
+rank: <n, or omit>
+
+# One fact, one sentence, written so behavior could be compared against it.
+# Not a topic. Not a heading. If you cannot tell from a transcript whether it
+# was honored, it is not a criterion yet.
+statement: >
+  <fact>
+
+# Why this is true for this person. This is what lets an agent generalize to a
+# situation the statement does not literally cover. Omitting it is how this
+# format degrades into a preferences file.
+rationale: >
+  <why>
+
+# global | domain:<name> | task:<kind> | stakes:<low|high>
+# More specific wins. Two criteria at the SAME scope that contradict are a
+# conflict for the person to resolve — never averaged.
+scope: <scope>
+
+# default | strong | firm
+# None of these enforce anything. `firm` means "ask before deviating", not
+# "this is a control". A criterion may be more conservative than an enforced
+# control; it may never be less.
+weight: <weight>
+
+# provisional | calibrating | stable
+stability: <stability>
+
+# corrected (strongest) | observed | stated | inferred (weakest, must be
+# confirmed before being treated as more than a guess)
+source: <source>
+
+# Required for `corrected` and `inferred`. Without it, a correction is
+# indistinguishable from an opinion.
+evidence: <what happened, one line>
+
+supersedes: <UC-NNNN, or null>
+status: active
+# retired_reason: <required when status is retired>
