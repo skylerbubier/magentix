@@ -21,10 +21,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
 
       - name: Marketplace manifest
         run: claude plugin validate .claude-plugin/marketplace.json --strict
@@ -37,17 +39,17 @@ jobs:
       # shipped as plugin context. Any other warning or error fails the job.
       - name: Plugin manifest and components (strict, one accepted warning)
         run: |
-          claude plugin validate .claude-plugin/plugin.json --json > report.json || true
-          cat report.json
-          jq -e '
-            .success == true
-            and ([.manifest.errors[], .contents[].errors[]] | length == 0)
-            and (
-              [.manifest.warnings[], .contents[].warnings[]]
-              | map(select(.message | test("CLAUDE.md at the plugin root is not loaded as project context") | not))
-              | length == 0
-            )
-          ' report.json > /dev/null
+          set -o pipefail
+          claude plugin validate .claude-plugin/plugin.json 2>&1 | tee report.txt
+          # Findings are the "❯ <path>: <message>" lines. Strip the one accepted
+          # warning; anything left - warning or error - fails the job.
+          unexpected=$(grep '❯' report.txt | grep -v 'CLAUDE.md at the plugin root is not loaded as project context' || true)
+          if [ -n "$unexpected" ]; then
+            echo "::error::Unexpected validation findings:"
+            echo "$unexpected"
+            exit 1
+          fi
+          grep -q 'Validation passed' report.txt
 
   drift-script:
     name: Test-PracticeDrift.ps1 exit-code contract
