@@ -1,0 +1,88 @@
+name: validate
+
+# The one check this repository actually enforces. CLAUDE.md and CONTRIBUTING.md
+# tell contributors to run `claude plugin validate` before opening a PR; this is
+# the mechanism that makes that a gate rather than a request.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin:
+    name: claude plugin validate --strict
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Marketplace manifest
+        run: claude plugin validate .claude-plugin/marketplace.json --strict
+
+      - name: Skills
+        run: claude plugin validate skills --strict
+
+      - name: Agents
+        run: claude plugin validate agents --strict
+
+      # The plugin manifest is validated in strict terms too, with one warning
+      # accepted on purpose: the root CLAUDE.md governs work on this repository
+      # (see CLAUDE.md, first paragraph) and is deliberately not shipped as
+      # plugin context. Any other warning or error still fails the job.
+      - name: Plugin manifest (strict, one accepted warning)
+        run: |
+          claude plugin validate .claude-plugin/plugin.json --json > report.json || true
+          cat report.json
+          jq -e '
+            .success == true
+            and ([.manifest.errors[], .contents[].errors[]] | length == 0)
+            and (
+              [.manifest.warnings[], .contents[].warnings[]]
+              | map(select(.message | test("CLAUDE.md at the plugin root is not loaded as project context") | not))
+              | length == 0
+            )
+          ' report.json > /dev/null
+
+  drift-script:
+    name: Test-PracticeDrift.ps1 exit-code contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The script documents three exit codes and check-practice-drift relies on
+      # them. Each is exercised here, so the contract is enforced, not asserted.
+      - name: Exit codes
+        shell: pwsh
+        run: |
+          $script = './scripts/Test-PracticeDrift.ps1'
+          $tmp = New-Item -ItemType Directory -Path (Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid()))
+          'hello' | Set-Content -NoNewline (Join-Path $tmp 'art.md')
+          $hash = (Get-FileHash (Join-Path $tmp 'art.md') -Algorithm SHA256).Hash.ToLowerInvariant()
+          @{ practice_id = 'ci'; phase = 'live'; artifacts = @(@{ path = 'art.md'; sha256 = $hash; owner = 'ci'; review_by = '2999-01-01' }) } |
+            ConvertTo-Json -Depth 5 | Set-Content (Join-Path $tmp 'ok.json')
+          '{bad' | Set-Content (Join-Path $tmp 'bad.json')
+
+          $cases = @(
+            @{ Manifest = (Join-Path $tmp 'ok.json');                  Want = 0; Why = 'everything matches' }
+            @{ Manifest = './adoption/templates/practice-manifest.json'; Want = 1; Why = 'template artifact is missing on disk' }
+            @{ Manifest = (Join-Path $tmp 'missing.json');             Want = 2; Why = 'manifest not found' }
+            @{ Manifest = (Join-Path $tmp 'bad.json');                 Want = 2; Why = 'manifest is not JSON' }
+          )
+          $failed = $false
+          foreach ($c in $cases) {
+            & pwsh -NoProfile -File $script -Manifest $c.Manifest *> $null
+            $got = $LASTEXITCODE
+            $mark = if ($got -eq $c.Want) { 'ok  ' } else { 'FAIL'; $failed = $true }
+            Write-Host "$mark exit $got (want $($c.Want)) - $($c.Why)"
+          }
+          if ($failed) { exit 1 }

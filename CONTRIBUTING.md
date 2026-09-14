@@ -72,15 +72,22 @@ expected. Conventions:
 
 ## Before opening a PR
 
-Run:
+Run, from the repository root, what CI runs
+([`.github/workflows/validate.yml`](.github/workflows/validate.yml)):
 
 ```
-claude plugin validate .
+claude plugin validate .claude-plugin/marketplace.json --strict
+claude plugin validate skills --strict
+claude plugin validate agents --strict
+claude plugin validate .claude-plugin/plugin.json
 ```
 
-from the repository root. CI runs the same check with `--strict`, so a
-warning `validate .` lets pass locally can still fail CI — worth running
-with `--strict` yourself before pushing if you want to catch that early.
+The plugin manifest is the one not run with `--strict`: the `CLAUDE.md` at
+the repository root draws a deliberate warning (it governs work on this
+repository and is not shipped as plugin context). CI accepts exactly that
+warning and fails on any other, so a new warning you see locally will fail
+there. If you change `scripts/Test-PracticeDrift.ps1`, CI also exercises
+its three documented exit codes.
 
 Beyond validation: if you touched a blueprint, confirm its reading in
 `adoption/templates/blueprint-reading.yaml` terms; if you touched a

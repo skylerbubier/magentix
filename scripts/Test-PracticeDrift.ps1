@@ -49,6 +49,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# StrictMode throws on a property that is not there. A manifest written by hand
+# may omit optional fields; read those through this so the report degrades to
+# blanks instead of dying mid-run.
+function Get-Prop {
+    param($Object, [string] $Name, $Default = $null)
+    if ($null -eq $Object) { return $Default }
+    if ($Object.PSObject.Properties.Name -contains $Name) { return $Object.$Name }
+    return $Default
+}
+
 function Get-FileHashOrNull {
     param([string] $Path)
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
@@ -79,13 +89,13 @@ function Get-TreeHash {
 }
 
 if (-not (Test-Path -LiteralPath $Manifest -PathType Leaf)) {
-    Write-Error "Manifest not found: $Manifest"
+    Write-Error "Manifest not found: $Manifest" -ErrorAction Continue
     exit 2
 }
 
 try { $m = Get-Content -LiteralPath $Manifest -Raw | ConvertFrom-Json }
 catch {
-    Write-Error "Manifest is not valid JSON: $($_.Exception.Message)"
+    Write-Error "Manifest is not valid JSON: $($_.Exception.Message)" -ErrorAction Continue
     exit 2
 }
 
@@ -107,15 +117,17 @@ $artifacts = @()
 if ($m.PSObject.Properties.Name -contains 'artifacts' -and $m.artifacts) { $artifacts = @($m.artifacts) }
 
 foreach ($a in $artifacts) {
-    $target = Resolve-Target $a.path
+    $aPath  = "$(Get-Prop $a 'path' '')"
+    $aOwner = "$(Get-Prop $a 'owner' '?')"
+    $target = Resolve-Target $aPath
     $actual = Get-FileHashOrNull $target
     $tracked = if ($a.PSObject.Properties.Name -contains 'sha256' -and $a.sha256) { "$($a.sha256)".ToLowerInvariant() } else { $null }
 
     if ($null -eq $actual) {
-        $findings.Add([pscustomobject]@{ Kind = 'MISSING'; Path = $a.path; Detail = 'in manifest, not on disk' })
+        $findings.Add([pscustomobject]@{ Kind = 'MISSING'; Path = $aPath; Detail = 'in manifest, not on disk' })
     }
     elseif ($tracked -and $actual -ne $tracked) {
-        $findings.Add([pscustomobject]@{ Kind = 'DRIFTED'; Path = $a.path; Detail = "hash mismatch - reconcile before regenerating (owner $($a.owner))" })
+        $findings.Add([pscustomobject]@{ Kind = 'DRIFTED'; Path = $aPath; Detail = "hash mismatch - reconcile before regenerating (owner $aOwner)" })
     }
     else {
         $okCount++
@@ -127,10 +139,10 @@ foreach ($a in $artifacts) {
         if ($null -ne $due) {
             $days = ($today - $due.Date).Days
             if ($days -ge 0) {
-                $findings.Add([pscustomobject]@{ Kind = 'REVIEW DUE'; Path = $a.path; Detail = "review_by $reviewBy, $days day(s) elapsed, owner $($a.owner)" })
+                $findings.Add([pscustomobject]@{ Kind = 'REVIEW DUE'; Path = $aPath; Detail = "review_by $reviewBy, $days day(s) elapsed, owner $aOwner" })
             }
             elseif ($WithinDays -gt 0 -and (-$days) -le $WithinDays) {
-                $findings.Add([pscustomobject]@{ Kind = 'REVIEW SOON'; Path = $a.path; Detail = "review_by $reviewBy, in $(-$days) day(s), owner $($a.owner)" })
+                $findings.Add([pscustomobject]@{ Kind = 'REVIEW SOON'; Path = $aPath; Detail = "review_by $reviewBy, in $(-$days) day(s), owner $aOwner" })
             }
         }
     }
@@ -149,9 +161,10 @@ foreach ($src in @(
     $ref = if ($node.PSObject.Properties.Name -contains 'version_ref') { "$($node.version_ref)".ToLowerInvariant() } else { '' }
     if ($ref -notmatch '^[0-9a-f]{64}$') { continue }
 
-    $now = Get-TreeHash (Resolve-Target $node.source)
+    $source = "$(Get-Prop $node 'source' '')"
+    $now = Get-TreeHash (Resolve-Target $source)
     if ($null -eq $now) {
-        $findings.Add([pscustomobject]@{ Kind = $src.Kind; Path = $node.source; Detail = "$key source not readable" })
+        $findings.Add([pscustomobject]@{ Kind = $src.Kind; Path = $source; Detail = "$key source not readable" })
         $stale = $true
     }
     elseif ($now -ne $ref) {
@@ -161,7 +174,7 @@ foreach ($src in @(
         else {
             "blueprint changed since it was read ($ref -> $now)"
         }
-        $findings.Add([pscustomobject]@{ Kind = $src.Kind; Path = $node.source; Detail = $detail })
+        $findings.Add([pscustomobject]@{ Kind = $src.Kind; Path = $source; Detail = $detail })
         $stale = $true
     }
 }
@@ -175,17 +188,17 @@ function Get-SourceLabel {
     if (-not $Node) { return '(none)' }
     $ref = if ($Node.PSObject.Properties.Name -contains 'version_ref') { "$($Node.version_ref)" } else { '' }
     if ($ref -match '^[0-9a-f]{64}$') { $ref = $ref.Substring(0, 12) }
-    if ($ref) { return "$($Node.source) @ $ref" }
-    return "$($Node.source)"
+    if ($ref) { return "$(Get-Prop $Node 'source' '') @ $ref" }
+    return "$(Get-Prop $Node 'source' '')"
 }
 
 $bpNode = if ($m.PSObject.Properties.Name -contains 'blueprint') { $m.blueprint } else { $null }
 $prNode = if ($m.PSObject.Properties.Name -contains 'profile') { $m.profile } else { $null }
 Write-Host ""
-Write-Host "Practice:  $($m.practice_id)"
+Write-Host "Practice:  $(Get-Prop $m 'practice_id' '(unnamed)')"
 Write-Host "Blueprint: $(Get-SourceLabel $bpNode)"
 Write-Host "Profile:   $(Get-SourceLabel $prNode)"
-Write-Host "Artifacts: $($artifacts.Count)   Phase: $($m.phase)"
+Write-Host "Artifacts: $($artifacts.Count)   Phase: $(Get-Prop $m 'phase' '?')"
 Write-Host ""
 
 foreach ($f in $findings) {
@@ -204,8 +217,8 @@ foreach ($f in $findings) {
 if ($okCount -gt 0) { Write-Host ("{0,-14} {1} artifact(s) match" -f 'OK', $okCount) -ForegroundColor Green }
 
 foreach ($d in $deferred) {
-    Write-Host ("{0,-14} {1}" -f 'DEFERRED', $d.element_id) -ForegroundColor Gray
-    Write-Host ("               trigger: {0}" -f $d.trigger) -ForegroundColor DarkGray
+    Write-Host ("{0,-14} {1}" -f 'DEFERRED', (Get-Prop $d 'element_id' '?')) -ForegroundColor Gray
+    Write-Host ("               trigger: {0}" -f (Get-Prop $d 'trigger' '(none recorded)')) -ForegroundColor DarkGray
 }
 
 $upcoming = $artifacts |

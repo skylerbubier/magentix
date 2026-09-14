@@ -139,8 +139,11 @@ whichever pipeline actually runs your delivery, is left to whoever adopts that b
 
 The one executable artifact this repository ships is [`scripts/Test-PracticeDrift.ps1`](scripts/Test-PracticeDrift.ps1),
 a PowerShell script implementing [`adoption/checks/drift-check.md`](adoption/checks/drift-check.md).
-Everything else that looks like automation — the hooks and settings shown under
-`templates/harness/` — is example material, never wired into this repository's own configuration.
+Everything else that looks like automation — the hooks, example hook scripts, and settings shown
+under `templates/harness/` — is example material, never wired into this repository's own
+configuration. The only automation that runs *on* this repository is its CI
+([`.github/workflows/validate.yml`](.github/workflows/validate.yml)), which validates the plugin
+and checks the drift script's exit codes.
 
 ## Contributing
 

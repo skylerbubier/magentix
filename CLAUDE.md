@@ -90,7 +90,19 @@ Quoted, not paraphrased — paraphrase is where they erode (see [`docs/architect
 
 ## Before opening a PR
 
-1. `claude plugin validate .` — and run it again with `--strict`; CI enforces `--strict`, and a
-   warning the plain run lets pass can still fail there.
+1. Run what CI runs ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)) — it is
+   the one check this repository enforces rather than asserts:
+
+   ```
+   claude plugin validate .claude-plugin/marketplace.json --strict
+   claude plugin validate skills --strict
+   claude plugin validate agents --strict
+   claude plugin validate .claude-plugin/plugin.json
+   ```
+
+   The last one is not run with `--strict` because this file, `CLAUDE.md` at the plugin root,
+   draws a deliberate warning: it governs work on the repository and is not shipped as plugin
+   context. CI accepts exactly that warning and fails on any other. If you touch
+   `scripts/Test-PracticeDrift.ps1`, CI also checks its three documented exit codes.
 2. Check that every relative link you touched actually resolves.
 3. Confirm [`docs/glossary.md`](docs/glossary.md) covers any new term you introduced.

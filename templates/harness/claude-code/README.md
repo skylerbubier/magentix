@@ -117,6 +117,14 @@ itself; the matcher alone only ever selects by tool.
 - [`hooks.json`](hooks.json) — an **example** hooks file. It is not wired
   into this plugin or any project; it exists to show the real shape of a
   hooks group and the deny / observe pattern above.
+- [`example-hooks/`](example-hooks/) — the two scripts `hooks.json` names:
+  [`deny-secrets-read.sh`](example-hooks/deny-secrets-read.sh) (the deny
+  half — exit 2 on a shell command that names a well-known secret file) and
+  [`log-file-change.sh`](example-hooks/log-file-change.sh) (the observe
+  half — appends to `.claude/state/file-changes.log`, never blocks). Both
+  are POSIX `sh`, use `jq` when present and fall back to `grep` when not,
+  and are illustrative of the exit-code contract, not security controls:
+  each fails closed only for the exact command shape it matches.
 - [`CLAUDE.md`](CLAUDE.md) — a skeleton project-context file: the Agent
   Context Kit's four documents collapsed into Claude Code's one shared,
   always-loaded project slot, with pointers out to on-demand detail.
