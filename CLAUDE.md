@@ -95,14 +95,13 @@ Quoted, not paraphrased — paraphrase is where they erode (see [`docs/architect
 
    ```
    claude plugin validate .claude-plugin/marketplace.json --strict
-   claude plugin validate skills --strict
-   claude plugin validate agents --strict
    claude plugin validate .claude-plugin/plugin.json
    ```
 
-   The last one is not run with `--strict` because this file, `CLAUDE.md` at the plugin root,
-   draws a deliberate warning: it governs work on the repository and is not shipped as plugin
-   context. CI accepts exactly that warning and fails on any other. If you touch
-   `scripts/Test-PracticeDrift.ps1`, CI also checks its three documented exit codes.
+   The second command validates every component the plugin ships — skills, agents, and this
+   file — and is not run with `--strict` locally because `CLAUDE.md` at the plugin root draws a
+   deliberate warning: it governs work on the repository and is not shipped as plugin context.
+   CI reads the same report as JSON, accepts exactly that warning, and fails on any other. If you
+   touch `scripts/Test-PracticeDrift.ps1`, CI also checks its three documented exit codes.
 2. Check that every relative link you touched actually resolves.
 3. Confirm [`docs/glossary.md`](docs/glossary.md) covers any new term you introduced.

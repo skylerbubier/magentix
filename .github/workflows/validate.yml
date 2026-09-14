@@ -29,17 +29,13 @@ jobs:
       - name: Marketplace manifest
         run: claude plugin validate .claude-plugin/marketplace.json --strict
 
-      - name: Skills
-        run: claude plugin validate skills --strict
-
-      - name: Agents
-        run: claude plugin validate agents --strict
-
-      # The plugin manifest is validated in strict terms too, with one warning
-      # accepted on purpose: the root CLAUDE.md governs work on this repository
-      # (see CLAUDE.md, first paragraph) and is deliberately not shipped as
-      # plugin context. Any other warning or error still fails the job.
-      - name: Plugin manifest (strict, one accepted warning)
+      # Validating the plugin manifest also validates every component the
+      # plugin ships (skills, agents, root CLAUDE.md), so this is the one step
+      # that covers the whole plugin. It is held to strict terms with one
+      # warning accepted on purpose: the root CLAUDE.md governs work on this
+      # repository (see CLAUDE.md, first paragraph) and is deliberately not
+      # shipped as plugin context. Any other warning or error fails the job.
+      - name: Plugin manifest and components (strict, one accepted warning)
         run: |
           claude plugin validate .claude-plugin/plugin.json --json > report.json || true
           cat report.json
@@ -85,4 +81,6 @@ jobs:
             $mark = if ($got -eq $c.Want) { 'ok  ' } else { 'FAIL'; $failed = $true }
             Write-Host "$mark exit $got (want $($c.Want)) - $($c.Why)"
           }
-          if ($failed) { exit 1 }
+          # The last native call above left $LASTEXITCODE at 2, and the runner's
+          # pwsh wrapper propagates it unless the step exits explicitly.
+          if ($failed) { exit 1 } else { exit 0 }

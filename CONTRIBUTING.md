@@ -77,17 +77,17 @@ Run, from the repository root, what CI runs
 
 ```
 claude plugin validate .claude-plugin/marketplace.json --strict
-claude plugin validate skills --strict
-claude plugin validate agents --strict
 claude plugin validate .claude-plugin/plugin.json
 ```
 
-The plugin manifest is the one not run with `--strict`: the `CLAUDE.md` at
-the repository root draws a deliberate warning (it governs work on this
-repository and is not shipped as plugin context). CI accepts exactly that
-warning and fails on any other, so a new warning you see locally will fail
-there. If you change `scripts/Test-PracticeDrift.ps1`, CI also exercises
-its three documented exit codes.
+The second command validates every component the plugin ships — skills,
+agents, and the root `CLAUDE.md`. It is not run with `--strict` locally
+because that `CLAUDE.md` draws a deliberate warning (it governs work on
+this repository and is not shipped as plugin context). CI reads the same
+report as JSON, accepts exactly that warning, and fails on any other — so a
+new warning you see locally will fail there. If you change
+`scripts/Test-PracticeDrift.ps1`, CI also exercises its three documented
+exit codes.
 
 Beyond validation: if you touched a blueprint, confirm its reading in
 `adoption/templates/blueprint-reading.yaml` terms; if you touched a
