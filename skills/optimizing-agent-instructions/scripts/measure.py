@@ -72,7 +72,7 @@ TIME_WORDS = [
 DIRECTIVE_CAPS = r"\b(ALWAYS|NEVER|MUST|CRITICAL|IMPORTANT|REQUIRED|DO NOT|SHALL)\b"
 SECOND_PERSON = r"\b(I can|I will|I'll|you can use|you can|you should|use this to)\b"
 BACKSLASH_PATH = r"[A-Za-z0-9_.-]+\\[A-Za-z0-9_.\\-]+"
-MD_LINK = r"\[[^\]]*\]\(([^)\s]+\.md)\)"
+MD_LINK = r"\[[^\]]*\]\(([^)\s#]+\.md)(?:#[^)\s]*)?\)"
 BARE_MD_REF = r"(?:see|read|refer to)\s+`?([A-Za-z0-9_./-]+\.md)`?"
 
 
@@ -91,6 +91,25 @@ def split_frontmatter(text: str) -> tuple[str, str]:
 def frontmatter_field(fm: str, key: str) -> str:
     m = re.search(rf"^{key}:\s*(.*)$", fm, flags=re.M)
     return m.group(1).strip().strip("\"'") if m else ""
+
+
+def md_refs_in(text: str) -> set[str]:
+    return set(re.findall(MD_LINK, text)) | set(re.findall(BARE_MD_REF, text, flags=re.I))
+
+
+def resolve_ref(base: Path, root: Path, ref: str) -> Path | None:
+    """Resolve a Markdown reference relative to `base`, but only if it stays inside `root`.
+
+    Reference files are read to detect chains and missing contents lists. Reading is confined
+    to the analyzed file's directory tree so a `../` or absolute link in the input cannot make
+    the script open unrelated files.
+    """
+    if re.match(r"^[a-z][a-z0-9+.-]*:", ref, flags=re.I) or Path(ref).is_absolute():
+        return None
+    target = (base / ref).resolve()
+    if not target.is_relative_to(root) or target.suffix != ".md" or not target.is_file():
+        return None
+    return target
 
 
 def analyze(path: Path) -> dict:
@@ -132,20 +151,20 @@ def analyze(path: Path) -> dict:
     if description and len(description) > 1024:
         name_issues.append(f"description is {len(description)} chars (limit 1024)")
 
-    md_refs = set(re.findall(MD_LINK, text)) | set(re.findall(BARE_MD_REF, text, flags=re.I))
+    root = path.parent.resolve()
     nested = []
-    for ref in sorted(md_refs):
-        target = (path.parent / ref).resolve()
-        if target.exists() and target.suffix == ".md":
-            inner = target.read_text(encoding="utf-8", errors="replace")
-            inner_refs = set(re.findall(MD_LINK, inner)) | set(re.findall(BARE_MD_REF, inner, flags=re.I))
-            # Only count refs that resolve to real files; mentions inside examples are not chains.
-            inner_refs = {r for r in inner_refs
-                          if not r.endswith(path.name) and (target.parent / r).exists()}
-            if inner_refs:
-                nested.append((ref, sorted(inner_refs)))
-            if len(inner.splitlines()) > 100 and not re.search(r"^##?\s*(contents|table of contents)", inner, flags=re.I | re.M):
-                nested.append((ref, ["(>100 lines, no Contents section)"]))
+    for ref in sorted(md_refs_in(text)):
+        target = resolve_ref(path.parent, root, ref)
+        if target is None:
+            continue
+        inner = target.read_text(encoding="utf-8", errors="replace")
+        # Only count refs that resolve to real files; mentions inside examples are not chains.
+        inner_refs = {r for r in md_refs_in(inner)
+                      if not r.endswith(path.name) and resolve_ref(target.parent, root, r) is not None}
+        if inner_refs:
+            nested.append((ref, sorted(inner_refs)))
+        if len(inner.splitlines()) > 100 and not re.search(r"^##?\s*(contents|table of contents)", inner, flags=re.I | re.M):
+            nested.append((ref, ["(>100 lines, no Contents section)"]))
 
     backslashes = re.findall(BACKSLASH_PATH, text)
     long_lines = [i + 1 for i, ln in enumerate(lines) if len(ln) > 400 and not ln.strip().startswith(("|", "```", "http"))]
