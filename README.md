@@ -86,6 +86,7 @@ ordered list, when more than one gap is real) instead of a menu of ten options.
 | [`check-practice-drift`](skills/check-practice-drift/SKILL.md) | A drift report against one `practice-manifest.json` | Checking whether a live practice needs to re-enter the adoption loop |
 | [`setup-agent-context`](skills/setup-agent-context/SKILL.md) | The four filled Agent Context Kit documents | Instantiating or maintaining the preference layer without a full gated adoption run |
 | [`author-spec-tree`](skills/author-spec-tree/SKILL.md) | Docs-as-code spec artifacts, by tier | Building or amending an AI-SDLC specification plane |
+| [`optimizing-agent-instructions`](skills/optimizing-agent-instructions/SKILL.md) | A rewritten prompt, `SKILL.md`, `CLAUDE.md`, subagent, or rules file that says the same thing in fewer tokens, plus an auditable change summary | Tightening or reviewing any instruction text an agent consumes — including the artifacts a practice materialized |
 
 Two subagents back these skills, both strictly read-only: [`profile-surveyor`](agents/profile-surveyor.md)
 gathers raw evidence for a project profile survey — CI, CODEOWNERS, dependency manifests, existing

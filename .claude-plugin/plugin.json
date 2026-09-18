@@ -1,7 +1,7 @@
 {
   "name": "magentix",
   "displayName": "Magentix",
-  "description": "Adds the Magentix adoption engine to Claude Code: skills that survey a project or elicit a user profile, bind an agent harness, author a spec tree from a best-practice blueprint, validate and adopt a practice, and check it for drift afterward — plus two read-only subagents (profile-surveyor, spec-validator) that gather evidence and validate specs without editing anything. Everything here is a compiler from blueprints and profiles to real files at real paths; it ships no active hooks.",
+  "description": "Adds the Magentix adoption engine to Claude Code: skills that survey a project or elicit a user profile, bind an agent harness, author a spec tree from a best-practice blueprint, validate and adopt a practice, check it for drift afterward, and optimize any agent-facing instruction text for fidelity, precision, and token economy — plus two read-only subagents (profile-surveyor, spec-validator) that gather evidence and validate specs without editing anything. Everything here is a compiler from blueprints and profiles to real files at real paths; it ships no active hooks.",
   "version": "0.1.0",
   "author": {
     "name": "Skyler Bubier",
